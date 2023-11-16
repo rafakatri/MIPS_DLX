@@ -8,10 +8,13 @@ entity Atividade is
 	 FPGA_RESET_N : in std_logic;
     CLOCK_50 : in std_logic;
 	 LEDR : out std_logic_vector(9 downto 0);
-	 ula_output : out std_logic_vector(7 downto 0);
-	 ram_in : out std_logic_vector(7 downto 0);
-	 ram_output : out std_logic_vector(7 downto 0);
-	 pc_signal : out std_logic_vector(7 downto 0)
+	 SW : in std_logic_vector(9 downto 0);
+	 HEX0: OUT std_logic_vector(6 downto 0);
+	 HEX1: OUT std_logic_vector(6 downto 0);
+	 HEX2: OUT std_logic_vector(6 downto 0);
+	 HEX3: OUT std_logic_vector(6 downto 0);
+	 HEX4: OUT std_logic_vector(6 downto 0);
+	 HEX5: OUT std_logic_vector(6 downto 0)
   );
 end entity;
 
@@ -41,7 +44,7 @@ alias imediato : std_logic_vector(15 downto 0) is instruction(15 downto 0);
 alias imediato_jmp : std_logic_vector(25 downto 0) is instruction(25 downto 0);
 
 
-signal Rs_OUT, Rt_OUT, ULA_OUT : std_logic_vector(31 downto 0);
+signal Rs_OUT, Rt_OUT, ULA_OUT, io_data : std_logic_vector(31 downto 0);
 
 signal RAM_OUT, imediato_estendido, imediato_shift : std_logic_vector(31 downto 0);
 
@@ -190,13 +193,46 @@ pcImediatoJMP(31 downto 28) <= pcMaisQuatro(31 downto 28);
 pcImediatoJMP(27 downto 2) <= imediato_jmp;
 pcImediatoJMP(1 downto 0) <= "00";
 			  
-			  
-LEDR <= PC_OUT(9 downto 0);
 
+Mux_IO :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
+        port map( entradaA_MUX => PC_OUT,
+                 entradaB_MUX =>  ULA_OUT,
+                 seletor_MUX => SW(0),
+                 saida_MUX => io_data);		  
 
-ula_output <= ULA_OUT(7 downto 0);
-ram_in <= Rt_OUT(7 downto 0);
-ram_output <= RAM_OUT(7 downto 0);	  
-pc_signal <= PC_OUT(7 downto 0);
+					  
+hex0_dec :  entity work.conversorHex7Seg
+            port map(dadoHex => io_data(3 downto 0),
+                    saida7seg => HEX0);
+						  
+
+hex1_dec :  entity work.conversorHex7Seg
+            port map(dadoHex => io_data(7 downto 4),
+                    saida7seg => HEX1);
+						  
+						  
+hex2_dec :  entity work.conversorHex7Seg
+            port map(dadoHex => io_data(11 downto 8),
+                    saida7seg => HEX2);
+
+						  
+hex3_dec :  entity work.conversorHex7Seg
+            port map(dadoHex => io_data(15 downto 12),
+                    saida7seg => HEX3);
+	
+	
+hex4_dec :  entity work.conversorHex7Seg
+            port map(dadoHex => io_data(19 downto 16),
+                    saida7seg => HEX4);
+
+	
+hex5_dec :  entity work.conversorHex7Seg
+            port map(dadoHex => io_data(23 downto 20),
+                    saida7seg => HEX5);
+						 
+LEDR(3 downto 0) <= io_data(27 downto 24);
+
+LEDR(7 downto 4) <= io_data(31 downto 28);
+						 
   
 end architecture;

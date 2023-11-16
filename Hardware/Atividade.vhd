@@ -53,25 +53,28 @@ signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 signal MUX_RtImed_OUT, MUX_UlaMem_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(11 downto 0);
+signal controle : std_logic_vector(8 downto 0);
 
-alias selJMP : std_logic is controle(11);
+alias selJMP : std_logic is controle(8);
 
-alias selRtRd : std_logic is controle(10);
+alias selRtRd : std_logic is controle(7);
 
-alias HAB_REG : std_logic is controle(9);
+alias HAB_REG : std_logic is controle(6);
 
-alias selRtImed : std_logic is controle(8);
+alias selRtImed : std_logic is controle(5);
 
-alias ULActrl : std_logic_vector(3 downto 0) is controle(7 downto 4);
+alias selUlaMem : std_logic is controle(4);
 
-alias selUlaMem : std_logic is controle(3);
+alias beq : std_logic is controle(3);
 
-alias beq : std_logic is controle(2);
+alias rd : std_logic is controle(2);
 
-alias rd : std_logic is controle(1);
+alias wr : std_logic is controle(1);
 
-alias wr : std_logic is controle(0);  
+alias tipo_r : std_logic is controle(0);
+
+
+signal op_ctrl, funct_ctrl, ULActrl : std_logic_vector(3 downto 0);  
 
 
 begin
@@ -137,7 +140,20 @@ Mux_UlaMem :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
 rom : entity work.ROMMIPS port map(Endereco => PC_OUT, Dado => instruction);
 
 
-decoder : entity work.decoderInstru port map(opcode => opcode, funct => funct, saida => controle);
+decoder : entity work.decoderInstru port map(opcode => opcode, saida => controle);
+
+
+decoder_op : entity work.decoderUlaOp port map(opcode => opcode, saida => op_ctrl);
+
+
+decoder_funct : entity work.decoderUlaFunct port map(funct => funct, saida => funct_ctrl);
+
+
+Mux_ula :  entity work.muxGenerico2x1 generic map (larguraDados => 4)
+        port map( entradaA_MUX => op_ctrl,
+                 entradaB_MUX =>  funct_ctrl,
+                 seletor_MUX => tipo_r,
+                 saida_MUX => ULActrl); 
 
 
 banco : entity work.bancoReg 
@@ -160,8 +176,8 @@ estendeSinal : entity work.estendeSinalGenerico
           port map (estendeSinal_IN => imediato, estendeSinal_OUT => imediato_estendido);	
 			
 
-ULA : entity work.ULASomaSub  generic map(larguraDados => 32)
-          port map (entradaA => Rs_OUT, entradaB => MUX_RtImed_OUT, saida => ULA_OUT, seletor => ULActrl, zero => eh_igual); 
+ULA : entity work.ula
+          port map (a => Rs_OUT, b => MUX_RtImed_OUT, resultado => ULA_OUT, ULActrl => ULActrl, zero => eh_igual); 
 
 			 
 HAB_RAM <= '1' when ((rd = '1') or (wr = '1')) else

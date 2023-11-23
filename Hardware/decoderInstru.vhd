@@ -18,6 +18,7 @@ architecture comportamento of decoderInstru is
   constant ADDI : std_logic_vector(5 downto 0) := "001000";
   constant LUI : std_logic_vector(5 downto 0) := "001111";
   constant ORI : std_logic_vector(5 downto 0) := "001101";
+  constant ANDI : std_logic_vector(5 downto 0) := "001100";
   constant OP_FUNCT : std_logic_vector(5 downto 0) := "000000"; 
 
 begin
@@ -32,6 +33,7 @@ saida <= "0000110101000" when opcode = LW else
 			"0000110000000" when opcode = ADDI else
 			"0000101100000" when opcode = LUI else
 			"0000110000001" when opcode = ORI else
+			"0000110000001" when opcode = ANDI else
          "0000000000000";  -- NOP para os opcodes Indefinidos
 			
 end architecture;

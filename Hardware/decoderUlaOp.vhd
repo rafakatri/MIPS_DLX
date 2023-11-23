@@ -15,6 +15,7 @@ architecture comportamento of decoderUlaOp is
   constant ADDI : std_logic_vector(5 downto 0) := "001000";
   constant LUI : std_logic_vector(5 downto 0) := "001111";
   constant ORI : std_logic_vector(5 downto 0) := "001101";
+  constant ANDI : std_logic_vector(5 downto 0) := "001100";
 
   begin
 saida <= "0010" when opcode = LW else
@@ -23,5 +24,6 @@ saida <= "0010" when opcode = LW else
 			"0010" when opcode = ADDI else
 			"0000" when opcode = LUI else
 			"0001" when opcode = ORI else
+			"0000" when opcode = ANDI else
          "0000";  -- NOP para os opcodes Indefinidos
 end architecture;

@@ -240,6 +240,8 @@ hex5_dec :  entity work.conversorHex7Seg
 LEDR(3 downto 0) <= io_data(27 downto 24);
 
 LEDR(7 downto 4) <= io_data(31 downto 28);
+
+LEDR(9 downto 8) <= "00";
 						 
   
 end architecture;

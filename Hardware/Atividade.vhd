@@ -56,13 +56,13 @@ signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 signal MUX_RtImed_OUT, MUX_UlaMem_OUT, MUX_JMP_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(10 downto 0);
+signal controle : std_logic_vector(11 downto 0);
 
-alias selJR : std_logic is controle(10);
+alias selJR : std_logic is controle(11);
 
-alias selJMP : std_logic is controle(9);
+alias selJMP : std_logic is controle(10);
 
-alias selRtRd : std_logic is controle(8);
+alias selRtRd : std_logic_vector(1 downto 0) is controle(9 downto 8);
 
 alias HAB_REG : std_logic is controle(7);
 
@@ -130,9 +130,11 @@ Mux_JR :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
 
 					  				  					  
 					  
-Mux_RtRd :  entity work.muxGenerico2x1 generic map (larguraDados => 5)
+Mux_RtRd :  entity work.mux4x1 generic map (larguraDados => 5)
         port map( entradaA_MUX => Rt,
                  entradaB_MUX =>  Rd,
+					  entradaC_MUX => "11111",
+					  entradaD_MUX =>  "00000",
                  seletor_MUX => selRtRd,
                  saida_MUX => MUX_RtRd_OUT);
 					  
@@ -148,7 +150,7 @@ Mux_RtImed :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
 Mux_UlaMem :  entity work.mux4x1 generic map (larguraDados => 32)
         port map( entradaA_MUX => ULA_OUT,
                  entradaB_MUX =>  RAM_OUT,
-					  entradaC_MUX => 32x"00",
+					  entradaC_MUX => pcMaisQuatro,
 					  entradaD_MUX => lui,
                  seletor_MUX => selUlaMem,
                  saida_MUX => MUX_UlaMem_OUT);

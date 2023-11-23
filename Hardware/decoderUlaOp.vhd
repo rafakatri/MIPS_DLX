@@ -28,6 +28,6 @@ saida <= "0010" when opcode = LW else
 			"0000" when opcode = LUI else
 			"0001" when opcode = ORI else
 			"0000" when opcode = ANDI else
-			"0011" when opcode = SLTI else
+			"0111" when opcode = SLTI else
          "0000";  -- NOP para os opcodes Indefinidos
 end architecture;

@@ -56,17 +56,17 @@ signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 signal MUX_RtImed_OUT, MUX_UlaMem_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(8 downto 0);
+signal controle : std_logic_vector(9 downto 0);
 
-alias selJMP : std_logic is controle(8);
+alias selJMP : std_logic is controle(9);
 
-alias selRtRd : std_logic is controle(7);
+alias selRtRd : std_logic is controle(8);
 
-alias HAB_REG : std_logic is controle(6);
+alias HAB_REG : std_logic is controle(7);
 
-alias selRtImed : std_logic is controle(5);
+alias selRtImed : std_logic is controle(6);
 
-alias selUlaMem : std_logic is controle(4);
+alias selUlaMem : std_logic_vector(1 downto 0) is controle(5 downto 4);
 
 alias beq : std_logic is controle(3);
 
@@ -77,7 +77,9 @@ alias wr : std_logic is controle(1);
 alias tipo_r : std_logic is controle(0);
 
 
-signal op_ctrl, funct_ctrl, ULActrl : std_logic_vector(3 downto 0);  
+signal op_ctrl, funct_ctrl, ULActrl : std_logic_vector(3 downto 0);
+
+signal lui : std_logic_vector(31 downto 0);  
 
 
 begin
@@ -133,9 +135,11 @@ Mux_RtImed :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
                  saida_MUX => MUX_RtImed_OUT);
 					  
 					  
-Mux_UlaMem :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
+Mux_UlaMem :  entity work.mux4x1 generic map (larguraDados => 32)
         port map( entradaA_MUX => ULA_OUT,
                  entradaB_MUX =>  RAM_OUT,
+					  entradaC_MUX => 32x"00",
+					  entradaD_MUX => lui,
                  seletor_MUX => selUlaMem,
                  saida_MUX => MUX_UlaMem_OUT);
   
@@ -176,7 +180,10 @@ ram : entity work.RAMMIPS
 
 			 
 estendeSinal : entity work.estendeSinalGenerico
-          port map (estendeSinal_IN => imediato, estendeSinal_OUT => imediato_estendido);	
+          port map (estendeSinal_IN => imediato, estendeSinal_OUT => imediato_estendido);
+			
+lui(31 downto 16) <= imediato;
+lui(15 downto 0) <= 16x"00";	
 			
 
 ULA : entity work.ula

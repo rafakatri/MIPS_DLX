@@ -13,11 +13,13 @@ architecture comportamento of decoderUlaOp is
   constant SW  : std_logic_vector(5 downto 0) := "101011";
   constant BEQ : std_logic_vector(5 downto 0) := "000100";
   constant ADDI : std_logic_vector(5 downto 0) := "001000";
+  constant LUI : std_logic_vector(5 downto 0) := "001111";
 
   begin
 saida <= "0010" when opcode = LW else
          "0010" when opcode = SW else
          "0110" when opcode = BEQ else
 			"0010" when opcode = ADDI else
+			"0000" when opcode = LUI else
          "0000";  -- NOP para os opcodes Indefinidos
 end architecture;

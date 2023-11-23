@@ -13,6 +13,7 @@ architecture comportamento of decoderInstru is
   constant SW  : std_logic_vector(5 downto 0) := "101011";
   constant BEQ : std_logic_vector(5 downto 0) := "000100";
   constant JMP : std_logic_vector(5 downto 0) := "000010";
+  constant ADDI : std_logic_vector(5 downto 0) := "001000";
   constant OP_FUNCT : std_logic_vector(5 downto 0) := "000000"; 
 
   begin
@@ -21,5 +22,6 @@ saida <= "001110100" when opcode = LW else
          "000111000" when opcode = BEQ else
 			"100000000" when opcode = JMP else
 			"011000001" when opcode = OP_FUNCT else
+			"001100000" when opcode = ADDI else
          "000000000";  -- NOP para os opcodes Indefinidos
 end architecture;

@@ -56,27 +56,29 @@ signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 signal MUX_RtImed_OUT, MUX_UlaMem_OUT, MUX_JMP_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(11 downto 0);
+signal controle : std_logic_vector(12 downto 0);
 
-alias selJR : std_logic is controle(11);
+alias selJR : std_logic is controle(12);
 
-alias selJMP : std_logic is controle(10);
+alias selJMP : std_logic is controle(11);
 
-alias selRtRd : std_logic_vector(1 downto 0) is controle(9 downto 8);
+alias selRtRd : std_logic_vector(1 downto 0) is controle(10 downto 9);
 
-alias HAB_REG : std_logic is controle(7);
+alias HAB_REG : std_logic is controle(8);
 
-alias selRtImed : std_logic is controle(6);
+alias selRtImed : std_logic is controle(7);
 
-alias selUlaMem : std_logic_vector(1 downto 0) is controle(5 downto 4);
+alias selUlaMem : std_logic_vector(1 downto 0) is controle(6 downto 5);
 
-alias beq : std_logic is controle(3);
+alias beq : std_logic is controle(4);
 
-alias rd : std_logic is controle(2);
+alias rd : std_logic is controle(3);
 
-alias wr : std_logic is controle(1);
+alias wr : std_logic is controle(2);
 
-alias tipo_r : std_logic is controle(0);
+alias tipo_r : std_logic is controle(1);
+
+alias ori : std_logic is controle(0);
 
 
 signal op_ctrl, funct_ctrl, ULActrl : std_logic_vector(3 downto 0);
@@ -192,7 +194,7 @@ ram : entity work.RAMMIPS
 
 			 
 estendeSinal : entity work.estendeSinalGenerico
-          port map (estendeSinal_IN => imediato, estendeSinal_OUT => imediato_estendido);
+          port map (estendeSinal_IN => imediato, estendeSinal_OUT => imediato_estendido, ori => ori);
 			
 lui(31 downto 16) <= imediato;
 lui(15 downto 0) <= 16x"00";	

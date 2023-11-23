@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 
 entity decoderInstru is
   port ( opcode : in std_logic_vector(5 downto 0);
-         saida : out std_logic_vector(9 downto 0)
+			funct : in std_logic_vector(5 downto 0);
+         saida : out std_logic_vector(10 downto 0)
   );
 end entity;
 
@@ -17,13 +18,16 @@ architecture comportamento of decoderInstru is
   constant LUI : std_logic_vector(5 downto 0) := "001111";
   constant OP_FUNCT : std_logic_vector(5 downto 0) := "000000"; 
 
-  begin
-saida <= "0011010100" when opcode = LW else
-         "0001010010" when opcode = SW else
-         "0001011000" when opcode = BEQ else
-			"1000000000" when opcode = JMP else
-			"0110000001" when opcode = OP_FUNCT else
-			"0011000000" when opcode = ADDI else
-			"0010110000" when opcode = LUI else
-         "0000000000";  -- NOP para os opcodes Indefinidos
+begin
+
+saida <= "00011010100" when opcode = LW else
+         "00001010010" when opcode = SW else
+         "00001011000" when opcode = BEQ else
+			"01000000000" when opcode = JMP else
+			"10000000001" when (funct = "001000" and opcode = OP_FUNCT)	else
+			"00110000001" when opcode = OP_FUNCT else
+			"00011000000" when opcode = ADDI else
+			"00010110000" when opcode = LUI else
+         "00000000000";  -- NOP para os opcodes Indefinidos
+			
 end architecture;

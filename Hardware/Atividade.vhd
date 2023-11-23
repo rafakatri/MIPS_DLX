@@ -53,10 +53,12 @@ signal HAB_RAM, eh_igual, selPC : std_logic;
 
 signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 
-signal MUX_RtImed_OUT, MUX_UlaMem_OUT : std_logic_vector(31 downto 0);
+signal MUX_RtImed_OUT, MUX_UlaMem_OUT, MUX_JMP_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(9 downto 0);
+signal controle : std_logic_vector(10 downto 0);
+
+alias selJR : std_logic is controle(10);
 
 alias selJMP : std_logic is controle(9);
 
@@ -116,9 +118,17 @@ Mux_JMP :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
         port map( entradaA_MUX => pcSemJMP,
                  entradaB_MUX =>  pcImediatoJMP,
                  seletor_MUX => selJMP,
-                 saida_MUX => proxPC);
-					  				  
+                 saida_MUX => MUX_JMP_OUT);
+
+
 					  
+Mux_JR :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
+        port map( entradaA_MUX => MUX_JMP_OUT,
+                 entradaB_MUX =>  Rs_OUT,
+                 seletor_MUX => selJR,
+                 saida_MUX => proxPC);					  
+
+					  				  					  
 					  
 Mux_RtRd :  entity work.muxGenerico2x1 generic map (larguraDados => 5)
         port map( entradaA_MUX => Rt,
@@ -147,7 +157,7 @@ Mux_UlaMem :  entity work.mux4x1 generic map (larguraDados => 32)
 rom : entity work.ROMMIPS port map(Endereco => PC_OUT, Dado => instruction);
 
 
-decoder : entity work.decoderInstru port map(opcode => opcode, saida => controle);
+decoder : entity work.decoderInstru port map(opcode => opcode, funct => funct, saida => controle);
 
 
 decoder_op : entity work.decoderUlaOp port map(opcode => opcode, saida => op_ctrl);

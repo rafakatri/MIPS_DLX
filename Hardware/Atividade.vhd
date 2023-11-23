@@ -48,7 +48,7 @@ signal Rs_OUT, Rt_OUT, ULA_OUT, io_data : std_logic_vector(31 downto 0);
 
 signal RAM_OUT, imediato_estendido, imediato_shift : std_logic_vector(31 downto 0);
 
-signal HAB_RAM, eh_igual, selPC : std_logic;
+signal HAB_RAM, eh_igual, selPC, selZero : std_logic;
 
 
 signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
@@ -56,21 +56,23 @@ signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 signal MUX_RtImed_OUT, MUX_UlaMem_OUT, MUX_JMP_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(12 downto 0);
+signal controle : std_logic_vector(13 downto 0);
 
-alias selJR : std_logic is controle(12);
+alias selJR : std_logic is controle(13);
 
-alias selJMP : std_logic is controle(11);
+alias selJMP : std_logic is controle(12);
 
-alias selRtRd : std_logic_vector(1 downto 0) is controle(10 downto 9);
+alias selRtRd : std_logic_vector(1 downto 0) is controle(11 downto 10);
 
-alias HAB_REG : std_logic is controle(8);
+alias HAB_REG : std_logic is controle(9);
 
-alias selRtImed : std_logic is controle(7);
+alias selRtImed : std_logic is controle(8);
 
-alias selUlaMem : std_logic_vector(1 downto 0) is controle(6 downto 5);
+alias selUlaMem : std_logic_vector(1 downto 0) is controle(7 downto 6);
 
-alias beq : std_logic is controle(4);
+alias beq : std_logic is controle(5);
+
+alias bne : std_logic is controle(4);
 
 alias rd : std_logic is controle(3);
 
@@ -207,7 +209,14 @@ ULA : entity work.ula
 HAB_RAM <= '1' when ((rd = '1') or (wr = '1')) else
 			  '0';
 			  
-selPC <= '1' when ((eh_igual = '1') and (beq = '1')) else
+Mux_sel_zero :  entity work.mux2x1
+        port map( entradaA_MUX => not eh_igual,
+                 entradaB_MUX =>  eh_igual,
+                 seletor_MUX => beq,
+                 saida_MUX => selZero); 
+ 		  
+			  
+selPC <= '1' when ((selZero = '1') and (beq = '1' or bne = '1')) else
 			'0';
 			
 pcImediatoJMP(31 downto 28) <= pcMaisQuatro(31 downto 28);

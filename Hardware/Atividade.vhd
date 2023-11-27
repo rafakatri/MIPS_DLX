@@ -14,11 +14,7 @@ entity Atividade is
 	 HEX2: OUT std_logic_vector(6 downto 0);
 	 HEX3: OUT std_logic_vector(6 downto 0);
 	 HEX4: OUT std_logic_vector(6 downto 0);
-	 HEX5: OUT std_logic_vector(6 downto 0);
-	 sel_beq : out std_logic;
-	 zerou : out std_logic;
-	 pc_saida : out std_logic_vector(31 downto 0);
-	 ula_saidax: out std_logic_vector(31 downto 0)
+	 HEX5: OUT std_logic_vector(6 downto 0)
   );
 end entity;
 
@@ -236,14 +232,6 @@ LEDR(3 downto 0) <= io_data(27 downto 24);
 LEDR(7 downto 4) <= io_data(31 downto 28);
 
 LEDR(9 downto 8) <= "00";
-
-sel_beq <= selPc;
-
-pc_saida <= PC_OUT;
-
-zerou <= eh_igual;
-
-ula_saidax <= ULA_OUT;
 						 
   
 end architecture;

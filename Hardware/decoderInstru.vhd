@@ -18,7 +18,7 @@ architecture comportamento of decoderInstru is
   begin
 saida <= "001110100" when opcode = LW else
          "000110010" when opcode = SW else
-         "000111000" when opcode = BEQ else
+         "000011000" when opcode = BEQ else
 			"100000000" when opcode = JMP else
 			"011000001" when opcode = OP_FUNCT else
          "000000000";  -- NOP para os opcodes Indefinidos

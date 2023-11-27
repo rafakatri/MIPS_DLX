@@ -406,7 +406,37 @@ ula_31: entity work.ula_1bit_msb port map(
 		  resultado => resultado(31)
 );
 
-zero <= '1' when resultado = "00000000000000000000000000000000" else
-		  '0';
+zero <= NOT (resultado(0)
+		OR resultado(1)
+		OR resultado(2)
+		OR resultado(3)
+		OR resultado(4)
+		OR resultado(5)
+		OR resultado(6)
+		OR resultado(7)
+		OR resultado(8)
+		OR resultado(9)
+		OR resultado(10)
+		OR resultado(11)
+		OR resultado(12)
+		OR resultado(13)
+		OR resultado(14)
+		OR resultado(15)
+		OR resultado(16)
+		OR resultado(17)
+		OR resultado(18)
+		OR resultado(19)
+		OR resultado(20)
+		OR resultado(21)
+		OR resultado(22)
+		OR resultado(23)
+		OR resultado(24)
+		OR resultado(25)
+		OR resultado(26)
+		OR resultado(27)
+		OR resultado(28)
+		OR resultado(29)
+		OR resultado(30)
+		OR resultado(31));
    
 end architecture;

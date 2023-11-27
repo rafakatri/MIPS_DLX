@@ -14,7 +14,11 @@ entity Atividade is
 	 HEX2: OUT std_logic_vector(6 downto 0);
 	 HEX3: OUT std_logic_vector(6 downto 0);
 	 HEX4: OUT std_logic_vector(6 downto 0);
-	 HEX5: OUT std_logic_vector(6 downto 0)
+	 HEX5: OUT std_logic_vector(6 downto 0);
+	 sel_beq : out std_logic;
+	 zerou : out std_logic;
+	 pc_saida : out std_logic_vector(31 downto 0);
+	 ula_saidax: out std_logic_vector(31 downto 0)
   );
 end entity;
 
@@ -96,11 +100,8 @@ pc : entity work.registradorGenerico   generic map (larguraDados => 32)
 aumentapc :  entity work.somaConstante  generic map (larguraDados => 32, constante => 4)
         port map( entrada => PC_OUT, saida => pcMaisQuatro);
 		  
-		  
-shift : entity work.shift2Left port map(entrada => imediato_estendido, saida => imediato_shift);
 
-
-soma : entity work.somadorGenerico port map(entradaA => pcMaisQuatro, entradaB => imediato_shift, saida => pcMaisImediato);
+soma : entity work.somadorGenerico port map(entradaA => pcMaisQuatro, entradaB => imediato_estendido(29 downto 0) & "00", saida => pcMaisImediato);
 
 
 Mux_PC :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
@@ -233,6 +234,16 @@ hex5_dec :  entity work.conversorHex7Seg
 LEDR(3 downto 0) <= io_data(27 downto 24);
 
 LEDR(7 downto 4) <= io_data(31 downto 28);
+
+LEDR(9 downto 8) <= "00";
+
+sel_beq <= selPc;
+
+pc_saida <= PC_OUT;
+
+zerou <= eh_igual;
+
+ula_saidax <= ULA_OUT;
 						 
   
 end architecture;

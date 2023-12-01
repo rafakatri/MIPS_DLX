@@ -210,7 +210,7 @@ HAB_RAM <= '1' when ((rd = '1') or (wr = '1')) else
 			  '0';
 			  
 Mux_sel_zero :  entity work.mux2x1
-        port map( entradaA_MUX => not eh_igual,
+        port map( entradaA_MUX => not(eh_igual),
                  entradaB_MUX =>  eh_igual,
                  seletor_MUX => beq,
                  saida_MUX => selZero); 

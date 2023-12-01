@@ -27,8 +27,8 @@ begin
 
 saida <= "00001101001000" when opcode = LW else
          "00000101000100" when opcode = SW else
-         "00000101100000" when opcode = BEQ else
-			"00000101010000" when opcode = BNE else
+         "00000001100000" when opcode = BEQ else
+			"00000001010000" when opcode = BNE else
 			"01000000000000" when opcode = JMP else
 			"01101010000000" when opcode = JAL else
 			"10000000000010" when (funct = "001000" and opcode = OP_FUNCT)	else

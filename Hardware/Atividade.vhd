@@ -46,7 +46,7 @@ alias imediato_jmp : std_logic_vector(25 downto 0) is instruction(25 downto 0);
 
 signal Rs_OUT, Rt_OUT, ULA_OUT, io_data : std_logic_vector(31 downto 0);
 
-signal RAM_OUT, imediato_estendido, imediato_shift : std_logic_vector(31 downto 0);
+signal RAM_OUT, imediato_estendido, imediato_shift, mem_byte : std_logic_vector(31 downto 0);
 
 signal HAB_RAM, eh_igual, selPC, selZero : std_logic;
 
@@ -56,27 +56,29 @@ signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 signal MUX_RtImed_OUT, MUX_UlaMem_OUT, MUX_JMP_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(13 downto 0);
+signal controle : std_logic_vector(15 downto 0);
 
-alias selJR : std_logic is controle(13);
+alias selJR : std_logic is controle(15);
 
-alias selJMP : std_logic is controle(12);
+alias selJMP : std_logic is controle(14);
 
-alias selRtRd : std_logic_vector(1 downto 0) is controle(11 downto 10);
+alias selRtRd : std_logic_vector(1 downto 0) is controle(13 downto 12);
 
-alias HAB_REG : std_logic is controle(9);
+alias HAB_REG : std_logic is controle(11);
 
-alias selRtImed : std_logic is controle(8);
+alias selRtImed : std_logic is controle(10);
 
-alias selUlaMem : std_logic_vector(1 downto 0) is controle(7 downto 6);
+alias selUlaMem : std_logic_vector(2 downto 0) is controle(9 downto 7);
 
-alias beq : std_logic is controle(5);
+alias beq : std_logic is controle(6);
 
-alias bne : std_logic is controle(4);
+alias bne : std_logic is controle(5);
 
-alias rd : std_logic is controle(3);
+alias rd : std_logic is controle(4);
 
-alias wr : std_logic is controle(2);
+alias wr : std_logic is controle(3);
+
+alias sel_SwByte : std_logic is controle(2);
 
 alias tipo_r : std_logic is controle(1);
 
@@ -151,11 +153,15 @@ Mux_RtImed :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
                  saida_MUX => MUX_RtImed_OUT);
 					  
 					  
-Mux_UlaMem :  entity work.mux4x1 generic map (larguraDados => 32)
+Mux_UlaMem :  entity work.mux8x1 generic map (larguraDados => 32)
         port map( entradaA_MUX => ULA_OUT,
                  entradaB_MUX =>  RAM_OUT,
 					  entradaC_MUX => pcMaisQuatro,
 					  entradaD_MUX => lui,
+					  entradaE_MUX => mem_byte,
+					  entradaF_MUX => 32x"00",
+					  entradaG_MUX => 32x"00",
+					  entradaH_MUX => 32x"00",
                  seletor_MUX => selUlaMem,
                  saida_MUX => MUX_UlaMem_OUT);
   
@@ -188,11 +194,15 @@ banco : entity work.bancoReg
               escreveC => HAB_REG,
               saidaA => Rs_OUT,
               saidaB  => Rt_OUT);
+				  
 
 
 ram : entity work.RAMMIPS
           port map (Endereco => ULA_OUT, we => wr, re => rd, habilita  => HAB_RAM, 
-			 dado_in => Rt_OUT, dado_out => RAM_OUT, clk => CLK);				  
+			 dado_in => Rt_OUT, dado_out => RAM_OUT, clk => CLK, lastByte => sel_SwByte);
+
+
+mem_byte <= 24x"00" & RAM_OUT(7 downto 0);			 
 
 			 
 estendeSinal : entity work.estendeSinalGenerico

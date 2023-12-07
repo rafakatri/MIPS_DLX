@@ -46,38 +46,48 @@ alias imediato_jmp : std_logic_vector(25 downto 0) is instruction(25 downto 0);
 
 signal Rs_OUT, Rt_OUT, ULA_OUT, io_data : std_logic_vector(31 downto 0);
 
-signal RAM_OUT, imediato_estendido, imediato_shift : std_logic_vector(31 downto 0);
+signal RAM_OUT, imediato_estendido, imediato_shift, mem_byte : std_logic_vector(31 downto 0);
 
-signal HAB_RAM, eh_igual, selPC : std_logic;
+signal HAB_RAM, eh_igual, selPC, selZero : std_logic;
 
 
 signal MUX_RtRd_OUT : std_logic_vector(4 downto 0);
 
-signal MUX_RtImed_OUT, MUX_UlaMem_OUT : std_logic_vector(31 downto 0);
+signal MUX_RtImed_OUT, MUX_UlaMem_OUT, MUX_JMP_OUT : std_logic_vector(31 downto 0);
 
 
-signal controle : std_logic_vector(8 downto 0);
+signal controle : std_logic_vector(15 downto 0);
 
-alias selJMP : std_logic is controle(8);
+alias selJR : std_logic is controle(15);
 
-alias selRtRd : std_logic is controle(7);
+alias selJMP : std_logic is controle(14);
 
-alias HAB_REG : std_logic is controle(6);
+alias selRtRd : std_logic_vector(1 downto 0) is controle(13 downto 12);
 
-alias selRtImed : std_logic is controle(5);
+alias HAB_REG : std_logic is controle(11);
 
-alias selUlaMem : std_logic is controle(4);
+alias selRtImed : std_logic is controle(10);
 
-alias beq : std_logic is controle(3);
+alias selUlaMem : std_logic_vector(2 downto 0) is controle(9 downto 7);
 
-alias rd : std_logic is controle(2);
+alias beq : std_logic is controle(6);
 
-alias wr : std_logic is controle(1);
+alias bne : std_logic is controle(5);
 
-alias tipo_r : std_logic is controle(0);
+alias rd : std_logic is controle(4);
+
+alias wr : std_logic is controle(3);
+
+alias sel_SwByte : std_logic is controle(2);
+
+alias tipo_r : std_logic is controle(1);
+
+alias ori : std_logic is controle(0);
 
 
-signal op_ctrl, funct_ctrl, ULActrl : std_logic_vector(3 downto 0);  
+signal op_ctrl, funct_ctrl, ULActrl : std_logic_vector(3 downto 0);
+
+signal lui : std_logic_vector(31 downto 0);  
 
 
 begin
@@ -114,13 +124,23 @@ Mux_JMP :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
         port map( entradaA_MUX => pcSemJMP,
                  entradaB_MUX =>  pcImediatoJMP,
                  seletor_MUX => selJMP,
-                 saida_MUX => proxPC);
-					  				  
+                 saida_MUX => MUX_JMP_OUT);
+
+
 					  
+Mux_JR :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
+        port map( entradaA_MUX => MUX_JMP_OUT,
+                 entradaB_MUX =>  Rs_OUT,
+                 seletor_MUX => selJR,
+                 saida_MUX => proxPC);					  
+
+					  				  					  
 					  
-Mux_RtRd :  entity work.muxGenerico2x1 generic map (larguraDados => 5)
+Mux_RtRd :  entity work.mux4x1 generic map (larguraDados => 5)
         port map( entradaA_MUX => Rt,
                  entradaB_MUX =>  Rd,
+					  entradaC_MUX => "11111",
+					  entradaD_MUX =>  "00000",
                  seletor_MUX => selRtRd,
                  saida_MUX => MUX_RtRd_OUT);
 					  
@@ -133,9 +153,15 @@ Mux_RtImed :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
                  saida_MUX => MUX_RtImed_OUT);
 					  
 					  
-Mux_UlaMem :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
+Mux_UlaMem :  entity work.mux8x1 generic map (larguraDados => 32)
         port map( entradaA_MUX => ULA_OUT,
                  entradaB_MUX =>  RAM_OUT,
+					  entradaC_MUX => pcMaisQuatro,
+					  entradaD_MUX => lui,
+					  entradaE_MUX => mem_byte,
+					  entradaF_MUX => 32x"00",
+					  entradaG_MUX => 32x"00",
+					  entradaH_MUX => 32x"00",
                  seletor_MUX => selUlaMem,
                  saida_MUX => MUX_UlaMem_OUT);
   
@@ -143,7 +169,7 @@ Mux_UlaMem :  entity work.muxGenerico2x1 generic map (larguraDados => 32)
 rom : entity work.ROMMIPS port map(Endereco => PC_OUT, Dado => instruction);
 
 
-decoder : entity work.decoderInstru port map(opcode => opcode, saida => controle);
+decoder : entity work.decoderInstru port map(opcode => opcode, funct => funct, saida => controle);
 
 
 decoder_op : entity work.decoderUlaOp port map(opcode => opcode, saida => op_ctrl);
@@ -168,15 +194,22 @@ banco : entity work.bancoReg
               escreveC => HAB_REG,
               saidaA => Rs_OUT,
               saidaB  => Rt_OUT);
+				  
 
 
 ram : entity work.RAMMIPS
           port map (Endereco => ULA_OUT, we => wr, re => rd, habilita  => HAB_RAM, 
-			 dado_in => Rt_OUT, dado_out => RAM_OUT, clk => CLK);				  
+			 dado_in => Rt_OUT, dado_out => RAM_OUT, clk => CLK, lastByte => sel_SwByte);
+
+
+mem_byte <= 24x"00" & RAM_OUT(7 downto 0);			 
 
 			 
 estendeSinal : entity work.estendeSinalGenerico
-          port map (estendeSinal_IN => imediato, estendeSinal_OUT => imediato_estendido);	
+          port map (estendeSinal_IN => imediato, estendeSinal_OUT => imediato_estendido, ori => ori);
+			
+lui(31 downto 16) <= imediato;
+lui(15 downto 0) <= 16x"00";	
 			
 
 ULA : entity work.ula
@@ -186,7 +219,14 @@ ULA : entity work.ula
 HAB_RAM <= '1' when ((rd = '1') or (wr = '1')) else
 			  '0';
 			  
-selPC <= '1' when ((eh_igual = '1') and (beq = '1')) else
+Mux_sel_zero :  entity work.mux2x1
+        port map( entradaA_MUX => not(eh_igual),
+                 entradaB_MUX =>  eh_igual,
+                 seletor_MUX => beq,
+                 saida_MUX => selZero); 
+ 		  
+			  
+selPC <= '1' when ((selZero = '1') and (beq = '1' or bne = '1')) else
 			'0';
 			
 pcImediatoJMP(31 downto 28) <= pcMaisQuatro(31 downto 28);
@@ -233,6 +273,8 @@ hex5_dec :  entity work.conversorHex7Seg
 LEDR(3 downto 0) <= io_data(27 downto 24);
 
 LEDR(7 downto 4) <= io_data(31 downto 28);
+
+LEDR(9 downto 8) <= "00";
 						 
   
 end architecture;

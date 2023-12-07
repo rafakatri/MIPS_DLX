@@ -11,7 +11,7 @@ entity RAMMIPS IS
           Endereco : IN  STD_LOGIC_VECTOR (addrWidth-1 DOWNTO 0);
           Dado_in  : in std_logic_vector(dataWidth-1 downto 0);
           Dado_out : out std_logic_vector(dataWidth-1 downto 0);
-          we, re, habilita : in std_logic
+          we, re, habilita, lastByte : in std_logic
         );
 end entity;
 
@@ -26,17 +26,23 @@ architecture assincrona OF RAMMIPS IS
 
 -- Utiliza uma quantidade menor de endereços locais:
    signal EnderecoLocal : std_logic_vector(memoryAddrWidth-1 downto 0);
+	signal MSBytes : std_logic_vector(dataWidth-1 downto 8);
 
 begin
 
   -- Ajusta o enderecamento para o acesso de 32 bits.
   EnderecoLocal <= Endereco(memoryAddrWidth+1 downto 2);
+  MSBytes <= memRAM(to_integer(unsigned(EnderecoLocal)))(dataWidth-1 downto 8);	
+
 
   process(clk)
   begin
       if(rising_edge(clk)) then
-          if(we = '1' and habilita='1') then
+          if(we = '1' and habilita='1' and lastByte = '0') then
               memRAM(to_integer(unsigned(EnderecoLocal))) <= Dado_in;
+          end if;
+			 if(we = '1' and habilita='1' and lastByte = '1') then
+              memRAM(to_integer(unsigned(EnderecoLocal))) <= MSBytes & Dado_in(7 downto 0);
           end if;
       end if;
   end process;
